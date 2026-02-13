@@ -100,7 +100,7 @@
 
         // 1. CARREGAR DADOS DO ARQUIVO JSON
         // O Vercel vai buscar o arquivo 'dados.json' que está na mesma pasta
-        fetch('dados.json')
+        fetch('dados/dados.json')
             .then(response => {
                 if (!response.ok) throw new Error("Arquivo de dados não encontrado.");
                 return response.json();
@@ -267,4 +267,5 @@
         }
     </script>
 </body>
+
 </html>
