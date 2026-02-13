@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RANKING OFICIAL - BATALHA DOS INSCRITOS</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
         :root {
             --bronze: #cd7f32; --prata: #e0e0e0; --ouro: #ffd700;
             --platina: #00ced1; --diamante: #b9f2ff; --mestre: #ff0040;
-            --bg-dark: #0a0a10; --glass: rgba(20, 20, 30, 0.7);
+            --bg-dark: #0a0a10; --glass: rgba(20, 20, 30, 0.85); /* Mais escuro para leitura mobile */
             --neon-blue: #00f2ea;
         }
 
@@ -19,213 +19,204 @@
             background-color: var(--bg-dark); color: white; 
             font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 242, 234, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 0, 64, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 64, 0.15) 0%, transparent 50%);
+            background-attachment: fixed; /* Fundo fixo ao rolar */
             min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- TIPOGRAFIA --- */
-        h1, h2, h3 { font-family: 'Black Ops One', cursive; text-transform: uppercase; margin: 0; letter-spacing: 2px; }
+        h1, h2, h3 { font-family: 'Black Ops One', cursive; text-transform: uppercase; margin: 0; letter-spacing: 1px; }
         .text-gold { color: var(--ouro); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
         .text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 234, 0.5); }
         .text-red { color: var(--mestre); text-shadow: 0 0 10px rgba(255, 0, 64, 0.5); }
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 30px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
 
-        /* --- HEADER & CALENDÁRIO --- */
+        /* --- HEADER --- */
         .header-hero {
-            text-align: center; padding: 40px 20px;
-            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0, 242, 234, 0.05) 50%, rgba(0,0,0,0) 100%);
+            text-align: center; padding: 30px 15px; position: relative;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0, 242, 234, 0.05) 100%);
             border-bottom: 1px solid #333;
         }
-        .header-hero h1 { font-size: 3rem; background: linear-gradient(to right, #fff, #00f2ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .last-update { font-size: 0.9rem; color: #666; margin-top: 10px; font-weight: bold; }
+        .header-hero h1 { font-size: 2.5rem; line-height: 1.1; background: linear-gradient(to right, #fff, #00f2ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .last-update { font-size: 0.85rem; color: #888; margin-top: 5px; font-weight: bold; }
 
-        /* BARRA DE PROGRESSO DA TEMPORADA */
+        /* BOTÃO JOGO (Versão Híbrida PC/Mobile) */
+        .btn-jogo {
+            position: absolute; top: 20px; right: 20px;
+            text-decoration: none; color: var(--neon-blue);
+            border: 1px solid var(--neon-blue); padding: 8px 20px; border-radius: 30px;
+            font-weight: bold; font-family: 'Rajdhani'; text-transform: uppercase;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            transition: all 0.2s; z-index: 100;
+        }
+        .btn-jogo:active { transform: scale(0.95); background: var(--neon-blue); color: black; }
+
+        /* SEASON BAR */
         .season-wrapper {
             max-width: 600px; margin: 20px auto 0;
             background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 20px;
-            padding: 15px; position: relative; overflow: hidden;
+            padding: 12px;
         }
-        .season-info { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #ccc; font-weight: bold; }
-        .progress-track { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--mestre)); width: 0%; transition: width 1s; box-shadow: 0 0 10px var(--neon-blue); }
-        
-        /* --- GRID PRINCIPAL --- */
-        .dashboard-grid {
-            display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px;
-        }
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .season-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #ccc; font-weight: bold; }
+        .progress-track { width: 100%; height: 8px; background: #222; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--mestre)); width: 0%; transition: width 1s; }
 
-        /* --- CARDS GENERICA --- */
+        /* --- GRID --- */
+        .dashboard-grid {
+            display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px;
+        }
+
+        /* --- CARDS --- */
         .glass-card {
             background: var(--glass); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            padding: 20px; display: flex; flex-direction: column; gap: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+            padding: 15px; display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
-        .card-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
-        .card-icon { font-size: 20px; }
+        .card-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 0; display: flex; align-items: center; gap: 10px; }
+        .card-header h3 { font-size: 1.1rem; }
+        .card-icon { font-size: 18px; }
 
-        /* --- GUIA DE PATENTES --- */
-        .patentes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; text-align: center; }
+        /* --- PATENTES --- */
+        .patentes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; text-align: center; }
         .patente-card { 
-            background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; border: 1px solid #333; 
-            transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;
+            background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; border: 1px solid #333; 
+            display: flex; flex-direction: column; align-items: center;
         }
-        .patente-card:hover { transform: translateY(-5px); border-color: white; }
-        .p-shield { width: 40px; height: 40px; margin-bottom: 5px; filter: drop-shadow(0 0 5px currentColor); }
-        .p-info small { color: #888; font-size: 10px; display: block; }
-        .p-info strong { font-size: 14px; display: block; }
+        .p-shield { width: 35px; height: 35px; margin-bottom: 2px; filter: drop-shadow(0 0 5px currentColor); }
+        .p-info small { color: #888; font-size: 9px; display: block; }
+        .p-info strong { font-size: 12px; display: block; }
 
-        /* --- LISTAS TOP --- */
-        .top-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
+        /* --- LISTAS --- */
+        .top-list { display: flex; flex-direction: column; gap: 6px; max-height: 350px; overflow-y: auto; }
         .top-item {
             display: flex; align-items: center; gap: 10px; padding: 8px;
-            background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid transparent;
+            background: rgba(0,0,0,0.3); border-radius: 6px;
         }
-        .top-item:hover { background: rgba(255,255,255,0.08); }
-        .top-rank { font-weight: 900; font-size: 18px; width: 25px; text-align: center; color: #555; }
-        .top-item:nth-child(1) .top-rank { color: #ffd700; text-shadow: 0 0 10px gold; }
+        .top-rank { font-weight: 900; font-size: 16px; width: 20px; text-align: center; color: #555; }
+        .top-item:nth-child(1) .top-rank { color: #ffd700; }
         .top-item:nth-child(2) .top-rank { color: #c0c0c0; }
         .top-item:nth-child(3) .top-rank { color: #cd7f32; }
-        
-        .top-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
-        .top-info { flex-grow: 1; line-height: 1.2; }
-        .top-name { font-weight: bold; font-size: 14px; color: #eee; }
-        .top-value { font-size: 12px; font-weight: bold; }
+        .top-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .top-info { flex-grow: 1; line-height: 1.1; }
+        .top-name { font-weight: bold; font-size: 13px; color: #eee; }
+        .top-value { font-size: 11px; font-weight: bold; }
 
-        /* --- TABELA GERAL --- */
-        .search-container { position: relative; margin-bottom: 10px; }
+        /* --- TABELA --- */
         .search-input { 
-            width: 100%; padding: 12px 15px; background: #111; border: 1px solid #444; color: white; 
-            border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px; box-sizing: border-box;
+            width: 100%; padding: 12px; background: #151520; border: 1px solid #444; color: white; 
+            border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px; box-sizing: border-box; 
+            -webkit-appearance: none; /* Remove estilo nativo iOS */
         }
-        .search-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 242, 234, 0.2); }
-
         .general-table-wrapper { max-height: 600px; overflow-y: auto; border-radius: 8px; background: #111; border: 1px solid #333; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #222; color: #aaa; padding: 12px; text-align: left; position: sticky; top: 0; z-index: 2; font-size: 12px; text-transform: uppercase; }
-        td { padding: 10px 15px; border-bottom: 1px solid #222; }
-        tr { transition: background 0.1s; }
-        tr:hover { background: rgba(0, 242, 234, 0.05); }
-
-        .player-cell { display: flex; align-items: center; gap: 10px; }
-        .table-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+        th { background: #1a1a25; color: #aaa; padding: 10px; text-align: left; position: sticky; top: 0; z-index: 2; font-size: 11px; }
+        td { padding: 8px 10px; border-bottom: 1px solid #222; font-size: 14px; }
+        
+        .player-cell { display: flex; align-items: center; gap: 8px; }
+        .table-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .rank-badge { 
-            display: inline-flex; align-items: center; gap: 5px; 
-            padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.5); 
-            border: 1px solid #333; font-size: 11px; font-weight: bold;
+            display: inline-flex; align-items: center; gap: 4px; 
+            padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); 
+            border: 1px solid #333; font-size: 10px; font-weight: bold; white-space: nowrap;
         }
-        .rank-badge svg { width: 14px; height: 14px; }
+        .rank-badge svg { width: 12px; height: 12px; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a10; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
-
-        /* BOTÃO PARA O SITE DO JOGO */
-        .btn-jogo {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            text-decoration: none;
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-family: 'Rajdhani', sans-serif;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            display: flex; align-items: center; gap: 8px;
+        /* --- MOBILE TWEAKS (A Mágica Acontece Aqui) --- */
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: 1fr; } /* Empilha tudo */
+            
+            /* Reordena: Hall da Fama primeiro */
+            .dashboard-grid > div:nth-child(1) { order: 1; } /* Esquerda (Hall) */
+            .dashboard-grid > div:nth-child(2) { order: 2; } /* Centro (Tabela) */
+            .dashboard-grid > div:nth-child(3) { order: 3; } /* Direita (Grafico) */
         }
 
-        .btn-jogo:hover {
-            background: var(--neon-blue);
-            color: black;
-            box-shadow: 0 0 20px var(--neon-blue);
-            transform: scale(1.05);
-        }
-
-        /* No celular, ele centraliza no topo pra não ficar apertado */
-        @media (max-width: 800px) {
-            .btn-jogo {
-                position: relative;
-                top: auto; right: auto;
-                margin: 0 auto 20px auto;
-                width: fit-content;
+        @media (max-width: 600px) {
+            .container { padding: 10px; gap: 15px; }
+            
+            .header-hero { padding: 20px 10px; }
+            .header-hero h1 { font-size: 2rem; margin-top: 10px; }
+            
+            /* Botão vira bloco no topo */
+            .btn-jogo { 
+                position: relative; top: auto; right: auto; 
+                display: block; width: 100%; text-align: center; 
+                margin-bottom: 15px; padding: 12px; font-size: 1.1rem;
             }
-        }
 
+            .glass-card { padding: 12px; gap: 10px; }
+            
+            /* Tabela Mobile */
+            th, td { padding: 8px 5px; }
+            .rank-badge { font-size: 9px; padding: 1px 4px; }
+            .table-avatar { width: 24px; height: 24px; }
+            
+            /* Ajuste de colunas da tabela para caber */
+            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } /* # */
+            th:nth-child(4), td:nth-child(4) { text-align: right; } /* Pontos */
+        }
     </style>
 </head>
 <body>
 
     <div class="header-hero">
-
         <a href="https://jstech-dot.github.io/batalha-dos-inscritos/#" target="_blank" class="btn-jogo">
-            🎮 IR PARA O JOGO
+            🎮 JOGAR AGORA
         </a>
-        
+
         <h1 class="text-blue">RANKING DAS LIVES- BATALHA DOS INSCRITOS</h1>
-        <h3 style="color:white; font-size:1rem; letter-spacing:5px; opacity:0.7;">PAINEL OFICIAL DE ESTATÍSTICAS</h3>
-        <div class="last-update" id="last-update">Carregando dados...</div>
+        <h3 style="color:white; font-size:0.9rem; letter-spacing:3px; opacity:0.7;">RANKING OFICIAL</h3>
+        <div class="last-update" id="last-update">...</div>
         
         <div class="season-wrapper">
             <div class="season-info">
-                <span>📅 TEMPORADA ATUAL</span>
-                <span id="season-days-left">Calculando...</span>
+                <span>📅 TEMPORADA</span>
+                <span id="season-days-left">...</span>
             </div>
             <div class="progress-track">
                 <div class="progress-fill" id="season-bar" style="width: 0%"></div>
             </div>
             <div style="display:flex; justify-content:space-between; margin-top:5px; font-size:10px; color:#666;">
-                <span id="season-start-date">Início</span>
-                <span id="season-end-date">Fim</span>
+                <span id="season-start-date">-</span>
+                <span id="season-end-date">-</span>
             </div>
         </div>
     </div>
 
     <div class="container">
         
-        <div class="glass-card" style="border-top: 3px solid var(--neon-blue);">
-            <div class="card-header">
-                <span class="card-icon">🛡️</span>
-                <h3>SISTEMA DE PATENTES</h3>
-            </div>
+        <div class="glass-card" style="border-top: 2px solid var(--neon-blue);">
+            <div class="card-header"><span class="card-icon">🛡️</span><h3>GUIA DE PATENTES</h3></div>
             <div class="patentes-grid" id="patentes-guide"></div>
         </div>
 
         <div class="dashboard-grid">
             
-            <div style="display:flex; flex-direction:column; gap:20px;">
-                <div class="glass-card" style="border-top: 3px solid var(--ouro);">
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <div class="glass-card" style="border-top: 2px solid var(--ouro);">
                     <div class="card-header"><span class="card-icon">👑</span><h3>HALL DA FAMA</h3></div>
                     <div class="top-list" id="hall-fama-list"></div>
                 </div>
-                <div class="glass-card" style="border-top: 3px solid #00ff00;">
+                <div class="glass-card" style="border-top: 2px solid #00ff00;">
                     <div class="card-header"><span class="card-icon">💎</span><h3>MAGNATAS</h3></div>
                     <div class="top-list" id="magnatas-list"></div>
                 </div>
             </div>
 
-            <div class="glass-card" style="border-top: 3px solid white;">
-                <div class="card-header"><span class="card-icon">📊</span><h3>CLASSIFICAÇÃO GERAL</h3></div>
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Digite o nome do jogador..." onkeyup="filtrarTabela()">
-                </div>
+            <div class="glass-card" style="border-top: 2px solid white;">
+                <div class="card-header"><span class="card-icon">📊</span><h3>CLASSIFICAÇÃO</h3></div>
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar jogador..." onkeyup="filtrarTabela()">
                 <div class="general-table-wrapper">
                     <table id="playersTable">
                         <thead>
                             <tr>
-                                <th width="10%">#</th>
+                                <th>#</th>
                                 <th>JOGADOR</th>
-                                <th width="25%">PATENTE</th>
-                                <th width="15%">PONTOS</th>
+                                <th>PATENTE</th>
+                                <th>PTS</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -233,16 +224,16 @@
                 </div>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:20px;">
+            <div style="display:flex; flex-direction:column; gap:15px;">
                 <div class="glass-card">
-                    <div class="card-header"><span class="card-icon">📈</span><h3>DISTRIBUIÇÃO</h3></div>
-                    <canvas id="rankChart" style="max-height:250px;"></canvas>
+                    <div class="card-header"><span class="card-icon">📈</span><h3>ESTATÍSTICAS</h3></div>
+                    <canvas id="rankChart" style="max-height:220px;"></canvas>
                 </div>
                 <div class="glass-card">
-                    <div class="card-header"><span class="card-icon">ℹ️</span><h3>SOBRE</h3></div>
-                    <p style="font-size:13px; color:#ccc; line-height:1.6;">
-                        Este ranking é atualizado automaticamente ao final de cada live.<br><br>
-                        Participe da <strong>Batalha dos Inscritos</strong> no TikTok para subir de patente e aparecer no topo!
+                    <div class="card-header"><span class="card-icon">ℹ️</span><h3>INFO</h3></div>
+                    <p style="font-size:12px; color:#aaa; line-height:1.5;">
+                        Ranking atualizado diariamente após a live.<br>
+                        Jogue no TikTok para subir de elo!
                     </p>
                 </div>
             </div>
@@ -266,7 +257,7 @@
             .then(res => { if(!res.ok) throw new Error(); return res.json(); })
             .then(backup => processarDados(backup))
             .catch(err => {
-                document.getElementById('last-update').innerHTML = "<span style='color:red'>Erro ao ler arquivo dados.json</span>";
+                document.getElementById('last-update').innerHTML = "<span style='color:red'>Erro ao carregar dados</span>";
                 console.error(err);
             });
 
@@ -279,9 +270,7 @@
             const vipData = safeParse(backup.vipRanking);
             const seasonData = safeParse(backup.season);
 
-            if (backup.data) document.getElementById('last-update').innerText = "ÚLTIMA ATUALIZAÇÃO: " + backup.data;
-            
-            // ATIVAR CALENDÁRIO
+            if (backup.data) document.getElementById('last-update').innerText = "ATUALIZADO: " + backup.data;
             atualizarCalendario(seasonData);
 
             todosJogadores = Object.entries(rankedData).map(([nome, dados]) => {
@@ -304,58 +293,47 @@
             renderizarGrafico(todosJogadores);
         }
 
-        // --- CALENDÁRIO INTELIGENTE ---
         function atualizarCalendario(seasonData) {
             if (!seasonData || !seasonData.fim) return;
-
-            const inicio = seasonData.inicio || (Date.now() - 1000); // Evita erro se não tiver inicio
+            const inicio = seasonData.inicio || (Date.now() - 1000);
             const fim = seasonData.fim;
-            const agora = Date.now();
-
-            // Formata Datas
             const dataFim = new Date(fim).toLocaleDateString('pt-BR');
             const dataInicio = new Date(inicio).toLocaleDateString('pt-BR');
-            document.getElementById('season-start-date').innerText = `Início: ${dataInicio}`;
-            document.getElementById('season-end-date').innerText = `Fim: ${dataFim}`;
+            document.getElementById('season-start-date').innerText = `INÍCIO: ${dataInicio}`;
+            document.getElementById('season-end-date').innerText = `FIM: ${dataFim}`;
 
             const updateTimer = () => {
                 const now = Date.now();
                 const total = fim - inicio;
                 const passado = now - inicio;
                 const restante = fim - now;
-
-                // Porcentagem da Barra
                 let pct = (passado / total) * 100;
-                pct = Math.max(0, Math.min(100, pct)); // Trava entre 0 e 100
+                pct = Math.max(0, Math.min(100, pct));
                 document.getElementById('season-bar').style.width = pct + '%';
 
                 if (restante <= 0) {
-                    document.getElementById('season-days-left').innerHTML = "<span style='color:red'>TEMPORADA FINALIZADA!</span>";
-                    document.getElementById('season-bar').style.background = "red";
+                    document.getElementById('season-days-left').innerHTML = "<span style='color:red'>FINALIZADA</span>";
                 } else {
                     const dias = Math.floor(restante / (1000 * 60 * 60 * 24));
                     const horas = Math.floor((restante % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    document.getElementById('season-days-left').innerText = `Restam: ${dias}d ${horas}h`;
+                    document.getElementById('season-days-left').innerText = `RESTAM: ${dias}d ${horas}h`;
                 }
             };
-
-            setInterval(updateTimer, 1000);
-            updateTimer(); // Roda a primeira vez
+            setInterval(updateTimer, 60000); updateTimer();
         }
 
         function renderizarGuiaPatentes() {
-            const container = document.getElementById('patentes-guide');
-            container.innerHTML = PATENTES_CONFIG.map(p => `
+            document.getElementById('patentes-guide').innerHTML = PATENTES_CONFIG.map(p => `
                 <div class="patente-card">
                     <svg class="p-shield" viewBox="0 0 24 24" style="color:${p.cor}">${p.svg}</svg>
-                    <div class="p-info"><strong style="color:${p.cor}">${p.nome}</strong><small>+${p.min} PTS</small></div>
+                    <div class="p-info"><strong style="color:${p.cor}">${p.nome}</strong><small>${p.min}+ PTS</small></div>
                 </div>
             `).join('');
         }
 
         function renderizarHallFama(lista) {
             const container = document.getElementById('hall-fama-list');
-            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666;">Nenhum vencedor.</div>'; return; }
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
             container.innerHTML = lista.map((p, i) => `
                 <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-gold">${p.wins} WINS</div></div></div>
             `).join('');
@@ -363,7 +341,7 @@
 
         function renderizarMagnatas(lista) {
             const container = document.getElementById('magnatas-list');
-            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666;">Nenhum apoiador.</div>'; return; }
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
             container.innerHTML = lista.map((p, i) => `
                 <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-blue">💎 ${p.diamantes}</div></div></div>
             `).join('');
@@ -374,8 +352,8 @@
             const display = lista.slice(0, 100);
             tbody.innerHTML = display.map((p, i) => `
                 <tr>
-                    <td><span style="color:#666; font-weight:bold;">#${i+1}</span></td>
-                    <td><div class="player-cell"><img class="table-avatar" src="${p.foto}" style="border: 2px solid ${p.patente.cor}"><span style="font-weight:bold; color:${p.patente.cor}">${p.nome}</span></div></td>
+                    <td><span style="color:#666; font-weight:bold;">${i+1}</span></td>
+                    <td><div class="player-cell"><img class="table-avatar" src="${p.foto}" style="border: 1px solid ${p.patente.cor}"><span style="font-weight:bold; color:${p.patente.cor}">${p.nome}</span></div></td>
                     <td><div class="rank-badge" style="color:${p.patente.cor}; border-color:${p.patente.cor}"><svg viewBox="0 0 24 24" fill="currentColor">${p.patente.svg}</svg>${p.patente.nome}</div></td>
                     <td style="font-weight:bold;">${p.pontos}</td>
                 </tr>
@@ -385,11 +363,12 @@
         function renderizarGrafico(lista) {
             const counts = {}; PATENTES_CONFIG.forEach(p => counts[p.nome] = 0);
             lista.forEach(p => counts[p.patente.nome]++);
+            if(window.myChart) window.myChart.destroy();
             const ctx = document.getElementById('rankChart').getContext('2d');
-            new Chart(ctx, {
+            window.myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: { labels: PATENTES_CONFIG.map(p => p.nome), datasets: [{ data: PATENTES_CONFIG.map(p => counts[p.nome]), backgroundColor: PATENTES_CONFIG.map(p => p.cor), borderWidth: 0 }] },
-                options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: 'white', boxWidth: 10 } } } }
+                options: { responsive: true, plugins: { legend: { position: 'right', labels: { color: 'white', boxWidth: 10, font: { size: 10 } } } } }
             });
         }
 
@@ -399,4 +378,3 @@
     </script>
 </body>
 </html>
-
