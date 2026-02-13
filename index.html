@@ -4,243 +4,383 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RANKING OFICIAL - BATALHA DOS INSCRITOS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ESTILO CYBERPUNK (O mesmo do anterior) */
-        body { 
-            background-color: #050505; color: white; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; 
-            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
-            min-height: 100vh;
-        }
-        h1, h2, h3 { font-family: 'Black Ops One', cursive; color: #00f2ea; text-transform: uppercase; margin: 0; }
-        
-        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        /* HEADER */
-        .header-box {
-            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
-            background: rgba(0, 242, 234, 0.05); border: 2px solid #00f2ea; border-radius: 15px; padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 242, 234, 0.1); text-align: center;
-        }
-        .header-info { text-align: left; }
-        
-        .update-badge {
-            background: #222; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; 
-            font-size: 12px; color: #aaa; margin-top: 5px; display: inline-block;
+        :root {
+            --bronze: #cd7f32; --prata: #e0e0e0; --ouro: #ffd700;
+            --platina: #00ced1; --diamante: #b9f2ff; --mestre: #ff0040;
+            --bg-dark: #0a0a10; --glass: rgba(20, 20, 30, 0.7);
+            --neon-blue: #00f2ea;
         }
 
-        .season-timer { text-align: right; }
-        .season-timer span { font-size: 30px; color: #ffd700; text-shadow: 0 0 10px #ffd700; display: block; }
-        
-        /* CARDS */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .card h3 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
-        /* TABELA */
-        .search-bar { width: 100%; padding: 12px; background: #222; border: 1px solid #00f2ea; color: white; border-radius: 5px; margin-bottom: 10px; font-size: 16px; box-sizing: border-box; }
-        
-        .player-table-container { max-height: 600px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #222; color: #00f2ea; padding: 10px; text-align: left; position: sticky; top: 0; z-index: 10; }
-        td { padding: 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; }
-        tr:hover { background: rgba(0, 242, 234, 0.1); }
-        
-        .p-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #555; object-fit: cover; }
-        .p-name { font-weight: bold; font-size: 14px; }
-        .p-rank { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; background: #000; white-space: nowrap; }
-        
-        /* RESPONSIVIDADE */
-        @media (max-width: 600px) {
-            .header-box { flex-direction: column; text-align: center; }
-            .header-info, .season-timer { text-align: center; width: 100%; }
+        body { 
+            background-color: var(--bg-dark); color: white; 
+            font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 234, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 64, 0.1) 0%, transparent 40%);
+            min-height: 100vh;
         }
+
+        /* --- TIPOGRAFIA --- */
+        h1, h2, h3 { font-family: 'Black Ops One', cursive; text-transform: uppercase; margin: 0; letter-spacing: 2px; }
+        .text-gold { color: var(--ouro); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 234, 0.5); }
+        .text-red { color: var(--mestre); text-shadow: 0 0 10px rgba(255, 0, 64, 0.5); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 30px; }
+
+        /* --- HEADER --- */
+        .header-hero {
+            text-align: center; padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0, 242, 234, 0.05) 50%, rgba(0,0,0,0) 100%);
+            border-bottom: 1px solid #333;
+        }
+        .header-hero h1 { font-size: 3rem; background: linear-gradient(to right, #fff, #00f2ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .last-update { font-size: 0.9rem; color: #666; margin-top: 10px; font-weight: bold; }
+
+        /* --- GRID PRINCIPAL --- */
+        .dashboard-grid {
+            display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px;
+        }
+        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+        /* --- CARDS GENERICA --- */
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        .card-icon { font-size: 20px; }
+
+        /* --- GUIA DE PATENTES (VISUAL RICO) --- */
+        .patentes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; text-align: center; }
+        .patente-card { 
+            background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; border: 1px solid #333; 
+            transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;
+        }
+        .patente-card:hover { transform: translateY(-5px); border-color: white; }
+        .p-shield { width: 40px; height: 40px; margin-bottom: 5px; filter: drop-shadow(0 0 5px currentColor); }
+        .p-info small { color: #888; font-size: 10px; display: block; }
+        .p-info strong { font-size: 14px; display: block; }
+
+        /* --- LISTAS TOP (HALL DA FAMA & MAGNATAS) --- */
+        .top-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
+        .top-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px;
+            background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 3px solid transparent;
+        }
+        .top-item:hover { background: rgba(255,255,255,0.08); }
+        .top-rank { font-weight: 900; font-size: 18px; width: 25px; text-align: center; color: #555; }
+        .top-item:nth-child(1) .top-rank { color: #ffd700; text-shadow: 0 0 10px gold; }
+        .top-item:nth-child(2) .top-rank { color: #c0c0c0; }
+        .top-item:nth-child(3) .top-rank { color: #cd7f32; }
+        
+        .top-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .top-info { flex-grow: 1; line-height: 1.2; }
+        .top-name { font-weight: bold; font-size: 14px; color: #eee; }
+        .top-value { font-size: 12px; font-weight: bold; }
+
+        /* --- TABELA GERAL --- */
+        .search-container { position: relative; margin-bottom: 10px; }
+        .search-input { 
+            width: 100%; padding: 12px 15px; background: #111; border: 1px solid #444; color: white; 
+            border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px; box-sizing: border-box;
+        }
+        .search-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 242, 234, 0.2); }
+
+        .general-table-wrapper { max-height: 600px; overflow-y: auto; border-radius: 8px; background: #111; border: 1px solid #333; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #222; color: #aaa; padding: 12px; text-align: left; position: sticky; top: 0; z-index: 2; font-size: 12px; text-transform: uppercase; }
+        td { padding: 10px 15px; border-bottom: 1px solid #222; }
+        tr { transition: background 0.1s; }
+        tr:hover { background: rgba(0, 242, 234, 0.05); }
+
+        .player-cell { display: flex; align-items: center; gap: 10px; }
+        .table-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+        .rank-badge { 
+            display: inline-flex; align-items: center; gap: 5px; 
+            padding: 3px 8px; border-radius: 4px; background: rgba(0,0,0,0.5); 
+            border: 1px solid #333; font-size: 11px; font-weight: bold;
+        }
+        .rank-badge svg { width: 14px; height: 14px; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a10; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
     </style>
 </head>
 <body>
 
+    <div class="header-hero">
+        <h1 class="text-blue">JSTECH ARENA</h1>
+        <h3 style="color:white; font-size:1rem; letter-spacing:5px; opacity:0.7;">PAINEL OFICIAL DE ESTATÍSTICAS</h3>
+        <div class="last-update" id="last-update">Carregando dados...</div>
+        <div style="margin-top:15px; font-size:1.2rem;">
+            FIM DA TEMPORADA: <span id="countdown" class="text-gold">--d --h</span>
+        </div>
+    </div>
+
     <div class="container">
-        <div class="header-box">
-            <div class="header-info">
-                <h1>RANKING OFICIAL</h1>
-                <p style="color:#ccc;">HALL DA FAMA - JSTECH ARENA</p>
-                <div class="update-badge" id="last-update">Carregando dados...</div>
+        
+        <div class="glass-card" style="border-top: 3px solid var(--neon-blue);">
+            <div class="card-header">
+                <span class="card-icon">🛡️</span>
+                <h3>SISTEMA DE PATENTES</h3>
             </div>
-            <div class="season-timer">
-                FIM DA TEMPORADA:
-                <span id="countdown">--d --h</span>
-            </div>
+            <div class="patentes-grid" id="patentes-guide">
+                </div>
         </div>
 
-        <div class="stats-grid">
-            <div class="card">
-                <h3>DISTRIBUIÇÃO DE PATENTES</h3>
-                <canvas id="rankChart"></canvas>
+        <div class="dashboard-grid">
+            
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                
+                <div class="glass-card" style="border-top: 3px solid var(--ouro);">
+                    <div class="card-header">
+                        <span class="card-icon">👑</span>
+                        <h3>HALL DA FAMA</h3>
+                    </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">MAIORES VENCEDORES DA ARENA</div>
+                    <div class="top-list" id="hall-fama-list">
+                        </div>
+                </div>
+
+                <div class="glass-card" style="border-top: 3px solid #00ff00;">
+                    <div class="card-header">
+                        <span class="card-icon">💎</span>
+                        <h3>MAGNATAS</h3>
+                    </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">MAIORES APOIADORES DA LIVE</div>
+                    <div class="top-list" id="magnatas-list">
+                        </div>
+                </div>
+
             </div>
 
-            <div class="card">
-                <h3>🏆 TOP 3 DA TEMPORADA</h3>
-                <div id="top3-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>📊 CLASSIFICAÇÃO GERAL</h3>
-            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Buscar seu nome..." onkeyup="filtrarTabela()">
-            <div class="player-table-container">
-                <table id="playersTable">
+            <div class="glass-card" style="border-top: 3px solid white;">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h3>CLASSIFICAÇÃO GERAL</h3>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Digite o nome do jogador..." onkeyup="filtrarTabela()">
+                </div>
+                <div class="general-table-wrapper">
+                    <table id="playersTable">
+                        <thead>
+                            <tr>
+                                <th width="10%">#</th>
+                                <th>JOGADOR</th>
+                                <th width="25%">PATENTE</th>
+                                <th width="15%">PONTOS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
                     </table>
+                </div>
             </div>
+
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-icon">📈</span>
+                        <h3>DISTRIBUIÇÃO</h3>
+                    </div>
+                    <canvas id="rankChart" style="max-height:250px;"></canvas>
+                </div>
+
+                <div class="glass-card">
+                    <div class="card-header">
+                        <span class="card-icon">ℹ️</span>
+                        <h3>SOBRE</h3>
+                    </div>
+                    <p style="font-size:13px; color:#ccc; line-height:1.6;">
+                        Este ranking é atualizado automaticamente ao final de cada live.
+                        <br><br>
+                        Participe da <strong>Batalha dos Inscritos</strong> no TikTok para subir de patente e aparecer no topo!
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÃO DAS PATENTES
+        const PATENTES_CONFIG = [
+            { nome: 'MESTRE', min: 3000, cor: '#ff0040', svg: '<path d="M12 2L2 7v6c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5z" fill="currentColor"/><path d="M12 6l-2 4H6l3 2.5L7 16l5-3 5 3-2-3.5 3-2.5h-4L12 6z" fill="white"/>' },
+            { nome: 'DIAMANTE', min: 2000, cor: '#b9f2ff', svg: '<path d="M12 2L2 7l10 15 10-15-10-5z" fill="currentColor"/><path d="M12 5l-5 3 5 8 5-8-5-3z" fill="#00000050"/>' },
+            { nome: 'PLATINA', min: 1600, cor: '#00ced1', svg: '<path d="M12 2L2 7v6c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5z" fill="currentColor"/><circle cx="12" cy="12" r="4" fill="#ffffff50"/>' },
+            { nome: 'OURO', min: 1300, cor: '#ffd700', svg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/><path d="M12 4l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z" fill="#b8860b"/>' },
+            { nome: 'PRATA', min: 1100, cor: '#c0c0c0', svg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/>' },
+            { nome: 'BRONZE', min: 0, cor: '#cd7f32', svg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/>' }
+        ];
+
         let todosJogadores = [];
 
-        // 1. CARREGAR DADOS DO ARQUIVO JSON
-        // O Vercel vai buscar o arquivo 'dados.json' que está na mesma pasta
+        // 1. CARREGAR DADOS
         fetch('dados/dados.json')
-            .then(response => {
-                if (!response.ok) throw new Error("Arquivo de dados não encontrado.");
-                return response.json();
-            })
-            .then(dadosBackup => {
-                // O Backup tem campos diferentes (wins, ranked, fotos), precisamos juntar tudo
-                processarDadosDoBackup(dadosBackup);
-            })
-            .catch(erro => {
-                console.error(erro);
-                document.getElementById('last-update').innerText = "Erro ao carregar dados.";
+            .then(res => { if(!res.ok) throw new Error(); return res.json(); })
+            .then(backup => processarDados(backup))
+            .catch(err => {
+                document.getElementById('last-update').innerHTML = "<span style='color:red'>Erro ao ler arquivo dados.json</span>";
+                console.error(err);
             });
 
-        function processarDadosDoBackup(backup) {
-            // Se for o formato novo do backup (baixado pelo botão do admin)
-            // Ele vem como strings JSON dentro de um objeto. Precisamos fazer parse.
+        function processarDados(backup) {
+            // Parse seguro dos JSON strings
+            const safeParse = (str) => { try { return typeof str === 'string' ? JSON.parse(str) : (str || {}); } catch { return {}; } };
             
-            let rankedData = {};
-            let fotosData = {};
-            let seasonData = {};
+            const rankedData = safeParse(backup.ranked);
+            const winsData = safeParse(backup.wins);
+            const fotosData = safeParse(backup.fotos);
+            const vipData = safeParse(backup.vipRanking);
+            const seasonData = safeParse(backup.season);
 
-            try {
-                rankedData = typeof backup.ranked === 'string' ? JSON.parse(backup.ranked) : backup.ranked || {};
-                fotosData = typeof backup.fotos === 'string' ? JSON.parse(backup.fotos) : backup.fotos || {};
-                seasonData = typeof backup.season === 'string' ? JSON.parse(backup.season) : backup.season || {};
-            } catch (e) {
-                console.error("Erro ao processar JSON do backup", e);
-            }
-
-            // Data da última atualização (Data do Backup)
-            if (backup.data) {
-                document.getElementById('last-update').innerText = "Última atualização: " + backup.data;
-            }
-
-            // Iniciar Timer
+            if (backup.data) document.getElementById('last-update').innerText = "ATUALIZADO EM: " + backup.data;
             iniciarTimer(seasonData);
 
-            // Montar Lista Unificada
-            const lista = Object.entries(rankedData).map(([nome, dados]) => {
-                // Se o dado for antigo (só numero) ou novo (objeto)
-                const pontos = typeof dados === 'number' ? dados : (dados.pontos || 1000);
-                const foto = fotosData[nome] || 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
-                
+            // 1. LISTA GERAL (Pontos)
+            todosJogadores = Object.entries(rankedData).map(([nome, dados]) => {
+                const pts = typeof dados === 'number' ? dados : (dados.pontos || 1000);
+                const patente = getPatenteInfo(pts);
                 return {
-                    nome: nome,
-                    pontos: pontos,
-                    foto: tratarFoto(foto),
-                    patente: getPatenteNome(pontos)
+                    nome,
+                    pontos: pts,
+                    foto: tratarFoto(fotosData[nome]),
+                    patente: patente
                 };
-            });
+            }).sort((a,b) => b.pontos - a.pontos);
 
-            todosJogadores = lista.sort((a,b) => b.pontos - a.pontos);
-            
-            renderizarGrafico(todosJogadores);
+            // 2. HALL DA FAMA (Wins)
+            const hallFama = Object.entries(winsData).map(([nome, wins]) => ({
+                nome, wins, foto: tratarFoto(fotosData[nome])
+            })).sort((a,b) => b.wins - a.wins).slice(0, 10);
+
+            // 3. MAGNATAS (VIP)
+            const magnatas = Object.entries(vipData).map(([nome, diamantes]) => ({
+                nome, diamantes, foto: tratarFoto(fotosData[nome])
+            })).sort((a,b) => b.diamantes - a.diamantes).slice(0, 10);
+
+            // RENDERIZAR TUDO
+            renderizarGuiaPatentes();
+            renderizarHallFama(hallFama);
+            renderizarMagnatas(magnatas);
             renderizarTabela(todosJogadores);
-            renderizarTop3(todosJogadores.slice(0, 3));
+            renderizarGrafico(todosJogadores);
         }
 
-        function tratarFoto(url) {
-            if(!url) return 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
-            if(url.includes('undefined')) return 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
-            return url;
+        // --- RENDERIZADORES ---
+
+        function renderizarGuiaPatentes() {
+            const container = document.getElementById('patentes-guide');
+            // Reverte para mostrar do Mestre pro Bronze
+            container.innerHTML = PATENTES_CONFIG.map(p => `
+                <div class="patente-card">
+                    <svg class="p-shield" viewBox="0 0 24 24" style="color:${p.cor}">${p.svg}</svg>
+                    <div class="p-info">
+                        <strong style="color:${p.cor}">${p.nome}</strong>
+                        <small>+${p.min} PTS</small>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function getPatenteNome(pontos) {
-            if(pontos >= 3000) return 'MESTRE';
-            if(pontos >= 2000) return 'DIAMANTE';
-            if(pontos >= 1600) return 'PLATINA';
-            if(pontos >= 1300) return 'OURO';
-            if(pontos >= 1100) return 'PRATA';
-            return 'BRONZE';
+        function renderizarHallFama(lista) {
+            const container = document.getElementById('hall-fama-list');
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666;">Nenhum vencedor ainda.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item">
+                    <div class="top-rank">${i+1}</div>
+                    <img class="top-avatar" src="${p.foto}">
+                    <div class="top-info">
+                        <div class="top-name">${p.nome}</div>
+                        <div class="top-value text-gold">${p.wins} VITÓRIAS</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function getCorPatente(nome) {
-            if(nome === 'MESTRE') return '#ff0040';
-            if(nome === 'DIAMANTE') return '#b9f2ff';
-            if(nome === 'PLATINA') return '#00ced1';
-            if(nome === 'OURO') return '#ffd700';
-            if(nome === 'PRATA') return '#c0c0c0';
-            return '#cd7f32';
+        function renderizarMagnatas(lista) {
+            const container = document.getElementById('magnatas-list');
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666;">Nenhum apoiador ainda.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item">
+                    <div class="top-rank">${i+1}</div>
+                    <img class="top-avatar" src="${p.foto}">
+                    <div class="top-info">
+                        <div class="top-name">${p.nome}</div>
+                        <div class="top-value text-blue">💎 ${p.diamantes}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderizarTabela(lista) {
+            const tbody = document.querySelector('#playersTable tbody');
+            const display = lista.slice(0, 100); // Mostra top 100 pra não pesar
+            
+            tbody.innerHTML = display.map((p, i) => `
+                <tr>
+                    <td><span style="color:#666; font-weight:bold;">#${i+1}</span></td>
+                    <td>
+                        <div class="player-cell">
+                            <img class="table-avatar" src="${p.foto}" style="border: 2px solid ${p.patente.cor}">
+                            <span style="font-weight:bold; color:${p.patente.cor}">${p.nome}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rank-badge" style="color:${p.patente.cor}; border-color:${p.patente.cor}">
+                            <svg viewBox="0 0 24 24" fill="currentColor">${p.patente.svg}</svg>
+                            ${p.patente.nome}
+                        </div>
+                    </td>
+                    <td style="font-weight:bold;">${p.pontos}</td>
+                </tr>
+            `).join('');
         }
 
         function renderizarGrafico(lista) {
-            const counts = { 'MESTRE':0, 'DIAMANTE':0, 'PLATINA':0, 'OURO':0, 'PRATA':0, 'BRONZE':0 };
-            lista.forEach(p => { if(counts[p.patente] !== undefined) counts[p.patente]++ });
+            const counts = {};
+            PATENTES_CONFIG.forEach(p => counts[p.nome] = 0);
+            lista.forEach(p => counts[p.patente.nome]++);
 
             const ctx = document.getElementById('rankChart').getContext('2d');
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(counts),
+                    labels: PATENTES_CONFIG.map(p => p.nome),
                     datasets: [{
-                        data: Object.values(counts),
-                        backgroundColor: ['#ff0040', '#b9f2ff', '#00ced1', '#ffd700', '#c0c0c0', '#cd7f32'],
+                        data: PATENTES_CONFIG.map(p => counts[p.nome]),
+                        backgroundColor: PATENTES_CONFIG.map(p => p.cor),
                         borderWidth: 0
                     }]
                 },
                 options: {
-                    plugins: { legend: { labels: { color: 'white' } } }
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: 'white', boxWidth: 10 } }
+                    }
                 }
             });
         }
 
-        function renderizarTabela(lista) {
-            const table = document.getElementById('playersTable');
-            // Renderiza apenas os top 200 para não travar o navegador se tiver 10 mil
-            const displayList = lista.slice(0, 200); 
-            
-            let html = '';
-            displayList.forEach((p, index) => {
-                const cor = getCorPatente(p.patente);
-                html += `
-                    <tr>
-                        <td style="width: 70%">
-                            <span style="color:#555; font-size:12px; margin-right:5px;">#${index+1}</span>
-                            <img class="p-avatar" src="${p.foto}" style="border-color:${cor}">
-                            <div class="p-name" style="color:${cor}">${p.nome}</div>
-                        </td>
-                        <td style="width: 30%; justify-content: flex-end;">
-                            <span class="p-rank" style="color:${cor}; border-color:${cor}">${p.patente}</span>
-                            <span style="font-weight:bold; font-size:12px;">${p.pontos}</span>
-                        </td>
-                    </tr>
-                `;
-            });
-            table.innerHTML = html;
+        // --- HELPERS ---
+        function getPatenteInfo(pontos) {
+            return PATENTES_CONFIG.find(p => pontos >= p.min) || PATENTES_CONFIG[PATENTES_CONFIG.length - 1];
         }
 
-        function renderizarTop3(top3) {
-            const div = document.getElementById('top3-list');
-            div.innerHTML = top3.map((p, i) => `
-                <div style="display:flex; align-items:center; gap:10px; background:#222; padding:10px; border-radius:8px; border:1px solid ${getCorPatente(p.patente)}">
-                    <div style="font-size:24px;">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
-                    <img src="${p.foto}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${getCorPatente(p.patente)}">
-                    <div>
-                        <div style="font-weight:bold; color:${getCorPatente(p.patente)}">${p.nome}</div>
-                        <div style="font-size:12px; color:#aaa;">${p.pontos} PTS</div>
-                    </div>
-                </div>
-            `).join('');
+        function tratarFoto(url) {
+            if(!url || url.includes('undefined')) return 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
+            return url;
         }
 
         function filtrarTabela() {
@@ -252,20 +392,15 @@
         function iniciarTimer(seasonData) {
             if(!seasonData || !seasonData.fim) return;
             const fim = seasonData.fim;
-            
             setInterval(() => {
-                const agora = Date.now();
-                const diff = fim - agora;
-                if(diff <= 0) {
-                    document.getElementById('countdown').innerText = "REINICIANDO...";
-                    return;
-                }
-                const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                document.getElementById('countdown').innerText = `${dias}d ${horas}h`;
+                const diff = fim - Date.now();
+                if(diff <= 0) { document.getElementById('countdown').innerText = "REINICIANDO..."; return; }
+                const d = Math.floor(diff / (1000*60*60*24));
+                const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+                document.getElementById('countdown').innerText = `${d}d ${h}h ${m}m`;
             }, 1000);
         }
     </script>
 </body>
-
 </html>
