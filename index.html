@@ -11,7 +11,7 @@
         :root {
             --bronze: #cd7f32; --prata: #e0e0e0; --ouro: #ffd700;
             --platina: #00ced1; --diamante: #b9f2ff; --mestre: #ff0040;
-            --bg-dark: #0a0a10; --glass: rgba(20, 20, 30, 0.85); /* Mais escuro para leitura mobile */
+            --bg-dark: #0a0a10; --glass: rgba(20, 20, 30, 0.85);
             --neon-blue: #00f2ea;
         }
 
@@ -21,16 +21,14 @@
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(0, 242, 234, 0.15) 0%, transparent 50%),
                 radial-gradient(circle at 90% 80%, rgba(255, 0, 64, 0.15) 0%, transparent 50%);
-            background-attachment: fixed; /* Fundo fixo ao rolar */
-            min-height: 100vh;
+            background-attachment: fixed; min-height: 100vh;
             -webkit-tap-highlight-color: transparent;
         }
 
         h1, h2, h3 { font-family: 'Black Ops One', cursive; text-transform: uppercase; margin: 0; letter-spacing: 1px; }
         .text-gold { color: var(--ouro); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
         .text-blue { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 234, 0.5); }
-        .text-red { color: var(--mestre); text-shadow: 0 0 10px rgba(255, 0, 64, 0.5); }
-
+        
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
 
         /* --- HEADER --- */
@@ -42,7 +40,6 @@
         .header-hero h1 { font-size: 2.5rem; line-height: 1.1; background: linear-gradient(to right, #fff, #00f2ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .last-update { font-size: 0.85rem; color: #888; margin-top: 5px; font-weight: bold; }
 
-        /* BOTÃO JOGO (Versão Híbrida PC/Mobile) */
         .btn-jogo {
             position: absolute; top: 20px; right: 20px;
             text-decoration: none; color: var(--neon-blue);
@@ -53,22 +50,30 @@
         }
         .btn-jogo:active { transform: scale(0.95); background: var(--neon-blue); color: black; }
 
-        /* SEASON BAR */
         .season-wrapper {
             max-width: 600px; margin: 20px auto 0;
-            background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 20px;
-            padding: 12px;
+            background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 20px; padding: 12px;
         }
         .season-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #ccc; font-weight: bold; }
         .progress-track { width: 100%; height: 8px; background: #222; border-radius: 5px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--mestre)); width: 0%; transition: width 1s; }
 
-        /* --- GRID --- */
-        .dashboard-grid {
-            display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px;
+        /* --- ÁREA DE ANÚNCIOS (ADSTERRA) --- */
+        .ad-container {
+            width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            padding: 10px; margin: 10px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden; /* Protege o layout no celular */
+            min-height: 110px; /* Altura mínima para o banner de 90px */
         }
+        
+        .ad-container:hover { border-color: rgba(255, 255, 255, 0.2); }
 
-        /* --- CARDS --- */
+        /* --- GRID --- */
+        .dashboard-grid { display: grid; grid-template-columns: 320px 1fr 300px; gap: 20px; }
         .glass-card {
             background: var(--glass); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
@@ -76,25 +81,16 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
         .card-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 0; display: flex; align-items: center; gap: 10px; }
-        .card-header h3 { font-size: 1.1rem; }
         .card-icon { font-size: 18px; }
 
-        /* --- PATENTES --- */
         .patentes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; text-align: center; }
-        .patente-card { 
-            background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; border: 1px solid #333; 
-            display: flex; flex-direction: column; align-items: center;
-        }
+        .patente-card { background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; }
         .p-shield { width: 35px; height: 35px; margin-bottom: 2px; filter: drop-shadow(0 0 5px currentColor); }
         .p-info small { color: #888; font-size: 9px; display: block; }
         .p-info strong { font-size: 12px; display: block; }
 
-        /* --- LISTAS --- */
         .top-list { display: flex; flex-direction: column; gap: 6px; max-height: 350px; overflow-y: auto; }
-        .top-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px;
-            background: rgba(0,0,0,0.3); border-radius: 6px;
-        }
+        .top-item { display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; }
         .top-rank { font-weight: 900; font-size: 16px; width: 20px; text-align: center; color: #555; }
         .top-item:nth-child(1) .top-rank { color: #ffd700; }
         .top-item:nth-child(2) .top-rank { color: #c0c0c0; }
@@ -104,59 +100,33 @@
         .top-name { font-weight: bold; font-size: 13px; color: #eee; }
         .top-value { font-size: 11px; font-weight: bold; }
 
-        /* --- TABELA --- */
-        .search-input { 
-            width: 100%; padding: 12px; background: #151520; border: 1px solid #444; color: white; 
-            border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px; box-sizing: border-box; 
-            -webkit-appearance: none; /* Remove estilo nativo iOS */
-        }
+        .search-input { width: 100%; padding: 12px; background: #151520; border: 1px solid #444; color: white; border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px; box-sizing: border-box; -webkit-appearance: none; }
         .general-table-wrapper { max-height: 600px; overflow-y: auto; border-radius: 8px; background: #111; border: 1px solid #333; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #1a1a25; color: #aaa; padding: 10px; text-align: left; position: sticky; top: 0; z-index: 2; font-size: 11px; }
         td { padding: 8px 10px; border-bottom: 1px solid #222; font-size: 14px; }
-        
         .player-cell { display: flex; align-items: center; gap: 8px; }
         .table-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .rank-badge { 
-            display: inline-flex; align-items: center; gap: 4px; 
-            padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); 
-            border: 1px solid #333; font-size: 10px; font-weight: bold; white-space: nowrap;
-        }
+        .rank-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 10px; font-weight: bold; white-space: nowrap; }
         .rank-badge svg { width: 12px; height: 12px; }
 
-        /* --- MOBILE TWEAKS (A Mágica Acontece Aqui) --- */
         @media (max-width: 1100px) {
-            .dashboard-grid { grid-template-columns: 1fr; } /* Empilha tudo */
-            
-            /* Reordena: Hall da Fama primeiro */
-            .dashboard-grid > div:nth-child(1) { order: 1; } /* Esquerda (Hall) */
-            .dashboard-grid > div:nth-child(2) { order: 2; } /* Centro (Tabela) */
-            .dashboard-grid > div:nth-child(3) { order: 3; } /* Direita (Grafico) */
+            .dashboard-grid { grid-template-columns: 1fr; } 
+            .dashboard-grid > div:nth-child(1) { order: 1; }
+            .dashboard-grid > div:nth-child(2) { order: 2; }
+            .dashboard-grid > div:nth-child(3) { order: 3; }
         }
-
         @media (max-width: 600px) {
             .container { padding: 10px; gap: 15px; }
-            
             .header-hero { padding: 20px 10px; }
             .header-hero h1 { font-size: 2rem; margin-top: 10px; }
-            
-            /* Botão vira bloco no topo */
-            .btn-jogo { 
-                position: relative; top: auto; right: auto; 
-                display: block; width: 100%; text-align: center; 
-                margin-bottom: 15px; padding: 12px; font-size: 1.1rem;
-            }
-
+            .btn-jogo { position: relative; top: auto; right: auto; display: block; width: 100%; text-align: center; margin-bottom: 15px; padding: 12px; font-size: 1.1rem; }
             .glass-card { padding: 12px; gap: 10px; }
-            
-            /* Tabela Mobile */
             th, td { padding: 8px 5px; }
             .rank-badge { font-size: 9px; padding: 1px 4px; }
             .table-avatar { width: 24px; height: 24px; }
-            
-            /* Ajuste de colunas da tabela para caber */
-            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } /* # */
-            th:nth-child(4), td:nth-child(4) { text-align: right; } /* Pontos */
+            th:nth-child(1), td:nth-child(1) { width: 30px; text-align: center; } 
+            th:nth-child(4), td:nth-child(4) { text-align: right; }
         }
     </style>
 </head>
@@ -188,11 +158,35 @@
 
     <div class="container">
         
+        <div class="ad-container">
+            <script>
+                atOptions = {
+                    'key' : 'c4610708d1a1c2a5116993c3e68efb88',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/c4610708d1a1c2a5116993c3e68efb88/invoke.js"></script>
+        </div>
         <div class="glass-card" style="border-top: 2px solid var(--neon-blue);">
             <div class="card-header"><span class="card-icon">🛡️</span><h3>GUIA DE PATENTES</h3></div>
             <div class="patentes-grid" id="patentes-guide"></div>
         </div>
 
+        <div class="ad-container">
+            <script>
+                atOptions = {
+                    'key' : 'c4610708d1a1c2a5116993c3e68efb88',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/c4610708d1a1c2a5116993c3e68efb88/invoke.js"></script>
+        </div>
         <div class="dashboard-grid">
             
             <div style="display:flex; flex-direction:column; gap:15px;">
@@ -239,7 +233,20 @@
             </div>
 
         </div>
-    </div>
+
+        <div class="ad-container" style="margin-top: 20px;">
+            <script>
+                atOptions = {
+                    'key' : 'c4610708d1a1c2a5116993c3e68efb88',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script src="https://www.highperformanceformat.com/c4610708d1a1c2a5116993c3e68efb88/invoke.js"></script>
+        </div>
+        </div>
 
     <script>
         const PATENTES_CONFIG = [
@@ -378,4 +385,3 @@
     </script>
 </body>
 </html>
-
