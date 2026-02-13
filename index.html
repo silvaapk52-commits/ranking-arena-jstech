@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RANKING OFICIAL - BATALHA DOS INSCRITOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ESTILO CYBERPUNK (O mesmo do anterior) */
+        body { 
+            background-color: #050505; color: white; font-family: 'Roboto', sans-serif; margin: 0; padding: 20px; 
+            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
+            min-height: 100vh;
+        }
+        h1, h2, h3 { font-family: 'Black Ops One', cursive; color: #00f2ea; text-transform: uppercase; margin: 0; }
+        
+        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* HEADER */
+        .header-box {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;
+            background: rgba(0, 242, 234, 0.05); border: 2px solid #00f2ea; border-radius: 15px; padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.1); text-align: center;
+        }
+        .header-info { text-align: left; }
+        
+        .update-badge {
+            background: #222; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; 
+            font-size: 12px; color: #aaa; margin-top: 5px; display: inline-block;
+        }
+
+        .season-timer { text-align: right; }
+        .season-timer span { font-size: 30px; color: #ffd700; text-shadow: 0 0 10px #ffd700; display: block; }
+        
+        /* CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .card h3 { font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        /* TABELA */
+        .search-bar { width: 100%; padding: 12px; background: #222; border: 1px solid #00f2ea; color: white; border-radius: 5px; margin-bottom: 10px; font-size: 16px; box-sizing: border-box; }
+        
+        .player-table-container { max-height: 600px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #222; color: #00f2ea; padding: 10px; text-align: left; position: sticky; top: 0; z-index: 10; }
+        td { padding: 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; }
+        tr:hover { background: rgba(0, 242, 234, 0.1); }
+        
+        .p-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #555; object-fit: cover; }
+        .p-name { font-weight: bold; font-size: 14px; }
+        .p-rank { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; background: #000; white-space: nowrap; }
+        
+        /* RESPONSIVIDADE */
+        @media (max-width: 600px) {
+            .header-box { flex-direction: column; text-align: center; }
+            .header-info, .season-timer { text-align: center; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-box">
+            <div class="header-info">
+                <h1>RANKING OFICIAL</h1>
+                <p style="color:#ccc;">HALL DA FAMA - JSTECH ARENA</p>
+                <div class="update-badge" id="last-update">Carregando dados...</div>
+            </div>
+            <div class="season-timer">
+                FIM DA TEMPORADA:
+                <span id="countdown">--d --h</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <h3>DISTRIBUIÇÃO DE PATENTES</h3>
+                <canvas id="rankChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h3>🏆 TOP 3 DA TEMPORADA</h3>
+                <div id="top3-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 CLASSIFICAÇÃO GERAL</h3>
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Buscar seu nome..." onkeyup="filtrarTabela()">
+            <div class="player-table-container">
+                <table id="playersTable">
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let todosJogadores = [];
+
+        // 1. CARREGAR DADOS DO ARQUIVO JSON
+        // O Vercel vai buscar o arquivo 'dados.json' que está na mesma pasta
+        fetch('dados.json')
+            .then(response => {
+                if (!response.ok) throw new Error("Arquivo de dados não encontrado.");
+                return response.json();
+            })
+            .then(dadosBackup => {
+                // O Backup tem campos diferentes (wins, ranked, fotos), precisamos juntar tudo
+                processarDadosDoBackup(dadosBackup);
+            })
+            .catch(erro => {
+                console.error(erro);
+                document.getElementById('last-update').innerText = "Erro ao carregar dados.";
+            });
+
+        function processarDadosDoBackup(backup) {
+            // Se for o formato novo do backup (baixado pelo botão do admin)
+            // Ele vem como strings JSON dentro de um objeto. Precisamos fazer parse.
+            
+            let rankedData = {};
+            let fotosData = {};
+            let seasonData = {};
+
+            try {
+                rankedData = typeof backup.ranked === 'string' ? JSON.parse(backup.ranked) : backup.ranked || {};
+                fotosData = typeof backup.fotos === 'string' ? JSON.parse(backup.fotos) : backup.fotos || {};
+                seasonData = typeof backup.season === 'string' ? JSON.parse(backup.season) : backup.season || {};
+            } catch (e) {
+                console.error("Erro ao processar JSON do backup", e);
+            }
+
+            // Data da última atualização (Data do Backup)
+            if (backup.data) {
+                document.getElementById('last-update').innerText = "Última atualização: " + backup.data;
+            }
+
+            // Iniciar Timer
+            iniciarTimer(seasonData);
+
+            // Montar Lista Unificada
+            const lista = Object.entries(rankedData).map(([nome, dados]) => {
+                // Se o dado for antigo (só numero) ou novo (objeto)
+                const pontos = typeof dados === 'number' ? dados : (dados.pontos || 1000);
+                const foto = fotosData[nome] || 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
+                
+                return {
+                    nome: nome,
+                    pontos: pontos,
+                    foto: tratarFoto(foto),
+                    patente: getPatenteNome(pontos)
+                };
+            });
+
+            todosJogadores = lista.sort((a,b) => b.pontos - a.pontos);
+            
+            renderizarGrafico(todosJogadores);
+            renderizarTabela(todosJogadores);
+            renderizarTop3(todosJogadores.slice(0, 3));
+        }
+
+        function tratarFoto(url) {
+            if(!url) return 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
+            if(url.includes('undefined')) return 'https://p16-va-tiktok.ibyteimg.com/img/musically-maliva-obj/1665282759496710~c5_100x100.jpeg';
+            return url;
+        }
+
+        function getPatenteNome(pontos) {
+            if(pontos >= 3000) return 'MESTRE';
+            if(pontos >= 2000) return 'DIAMANTE';
+            if(pontos >= 1600) return 'PLATINA';
+            if(pontos >= 1300) return 'OURO';
+            if(pontos >= 1100) return 'PRATA';
+            return 'BRONZE';
+        }
+
+        function getCorPatente(nome) {
+            if(nome === 'MESTRE') return '#ff0040';
+            if(nome === 'DIAMANTE') return '#b9f2ff';
+            if(nome === 'PLATINA') return '#00ced1';
+            if(nome === 'OURO') return '#ffd700';
+            if(nome === 'PRATA') return '#c0c0c0';
+            return '#cd7f32';
+        }
+
+        function renderizarGrafico(lista) {
+            const counts = { 'MESTRE':0, 'DIAMANTE':0, 'PLATINA':0, 'OURO':0, 'PRATA':0, 'BRONZE':0 };
+            lista.forEach(p => { if(counts[p.patente] !== undefined) counts[p.patente]++ });
+
+            const ctx = document.getElementById('rankChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#ff0040', '#b9f2ff', '#00ced1', '#ffd700', '#c0c0c0', '#cd7f32'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    plugins: { legend: { labels: { color: 'white' } } }
+                }
+            });
+        }
+
+        function renderizarTabela(lista) {
+            const table = document.getElementById('playersTable');
+            // Renderiza apenas os top 200 para não travar o navegador se tiver 10 mil
+            const displayList = lista.slice(0, 200); 
+            
+            let html = '';
+            displayList.forEach((p, index) => {
+                const cor = getCorPatente(p.patente);
+                html += `
+                    <tr>
+                        <td style="width: 70%">
+                            <span style="color:#555; font-size:12px; margin-right:5px;">#${index+1}</span>
+                            <img class="p-avatar" src="${p.foto}" style="border-color:${cor}">
+                            <div class="p-name" style="color:${cor}">${p.nome}</div>
+                        </td>
+                        <td style="width: 30%; justify-content: flex-end;">
+                            <span class="p-rank" style="color:${cor}; border-color:${cor}">${p.patente}</span>
+                            <span style="font-weight:bold; font-size:12px;">${p.pontos}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            table.innerHTML = html;
+        }
+
+        function renderizarTop3(top3) {
+            const div = document.getElementById('top3-list');
+            div.innerHTML = top3.map((p, i) => `
+                <div style="display:flex; align-items:center; gap:10px; background:#222; padding:10px; border-radius:8px; border:1px solid ${getCorPatente(p.patente)}">
+                    <div style="font-size:24px;">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+                    <img src="${p.foto}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${getCorPatente(p.patente)}">
+                    <div>
+                        <div style="font-weight:bold; color:${getCorPatente(p.patente)}">${p.nome}</div>
+                        <div style="font-size:12px; color:#aaa;">${p.pontos} PTS</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrarTabela() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const filtrados = todosJogadores.filter(p => p.nome.toLowerCase().includes(termo));
+            renderizarTabela(filtrados);
+        }
+
+        function iniciarTimer(seasonData) {
+            if(!seasonData || !seasonData.fim) return;
+            const fim = seasonData.fim;
+            
+            setInterval(() => {
+                const agora = Date.now();
+                const diff = fim - agora;
+                if(diff <= 0) {
+                    document.getElementById('countdown').innerText = "REINICIANDO...";
+                    return;
+                }
+                const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById('countdown').innerText = `${dias}d ${horas}h`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
