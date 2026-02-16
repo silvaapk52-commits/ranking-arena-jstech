@@ -111,6 +111,43 @@
         .rank-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.5); border: 1px solid #333; font-size: 10px; font-weight: bold; white-space: nowrap; }
         .rank-badge svg { width: 12px; height: 12px; }
 
+        /* --- ANIMAÇÕES E VISUAL DO PERFIL (SITE) --- */
+        .site-modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 99999; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease;
+        }
+        .site-modal-overlay.active { opacity: 1; display: flex; }
+        
+        .site-modal-box {
+            background: linear-gradient(135deg, #151520, #0a0a10);
+            border: 2px solid var(--neon-blue); border-radius: 20px; padding: 30px 20px;
+            width: 90%; max-width: 380px; text-align: center; position: relative;
+            box-shadow: 0 0 50px rgba(0, 242, 234, 0.3);
+            transform: scale(0.5); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .site-modal-overlay.active .site-modal-box { transform: scale(1); opacity: 1; }
+
+        .btn-close-modal {
+            position: absolute; top: 15px; right: 20px; background: transparent; border: none;
+            color: #888; font-size: 24px; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-close-modal:hover { color: #ff0055; transform: scale(1.2); }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;
+        }
+        .stat-card {
+            background: rgba(0,0,0,0.4); border: 1px solid #333; border-radius: 12px;
+            padding: 15px 10px; text-align: center;
+        }
+        .stat-card span { display: block; font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+        .stat-card strong { display: block; font-size: 22px; font-family: 'Black Ops One'; }
+
+        /* Efeito de hover para as tabelas e listas saberem que são clicáveis */
+        .clickable-row { cursor: pointer; transition: background 0.2s; }
+        .clickable-row:hover { background: rgba(255,255,255,0.05) !important; transform: scale(1.02); }
+
         @media (max-width: 1100px) {
             .dashboard-grid { grid-template-columns: 1fr; } 
             .dashboard-grid > div:nth-child(1) { order: 1; }
@@ -255,6 +292,39 @@
         </div>
         </div>
 
+    <div id="site-modal" class="site-modal-overlay">
+        <div class="site-modal-box" id="site-modal-content">
+            <button class="btn-close-modal" onclick="fecharPerfilSite()">×</button>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
+                <div id="modal-rank-icon" style="width: 40px; height: 40px;"></div>
+                <h2 id="modal-name" style="font-size: 32px; margin: 0; word-break: break-all;">NOME</h2>
+            </div>
+            <div id="modal-rank-name" style="font-size: 14px; font-weight: 900; margin-bottom: 15px; letter-spacing: 2px;">PATENTE</div>
+            
+            <img id="modal-img" src="" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 4px solid #fff;">
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span>🏆 Pontos</span>
+                    <strong id="modal-pts" style="color: var(--neon-blue);">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>🥇 Vitórias</span>
+                    <strong id="modal-wins" style="color: var(--ouro);">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>💀 Kills</span>
+                    <strong id="modal-kills" style="color: #ff0055;">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>💎 Presentes</span>
+                    <strong id="modal-vip" style="color: #00ff00;">0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const PATENTES_CONFIG = [
             { nome: 'LENDA', min: 10000, cor: '#a200ff', svg: '<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/><path d="M12 4l1.5 3.5H17l-3 2.5 1 4-3-2.5-3 2.5 1-4-3-2.5h3.5z" fill="white"/>' },
@@ -276,44 +346,137 @@
                 console.error(err);
             });
 
+        // Guarda todos os dados para consultarmos na hora do clique
+        let dbGlobal = {};
+
         function processarDados(backup) {
             const safeParse = (str) => { try { return typeof str === 'string' ? JSON.parse(str) : (str || {}); } catch { return {}; } };
             
-            const rankedData = safeParse(backup.ranked);
-            const winsData = safeParse(backup.wins);
-            const fotosData = safeParse(backup.fotos);
-            const vipData = safeParse(backup.vipRanking);
+            dbGlobal.ranked = safeParse(backup.ranked);
+            dbGlobal.wins = safeParse(backup.wins);
+            dbGlobal.fotos = safeParse(backup.fotos);
+            dbGlobal.vip = safeParse(backup.vipRanking);
+            dbGlobal.kills = safeParse(backup.kills);
             const seasonData = safeParse(backup.season);
-            const killsData = safeParse(backup.kills); // <-- Puxando as Kills do Backup
 
             if (backup.data) document.getElementById('last-update').innerText = "ATUALIZADO: " + backup.data;
             atualizarCalendario(seasonData);
 
-            todosJogadores = Object.entries(rankedData).map(([nome, dados]) => {
+            todosJogadores = Object.entries(dbGlobal.ranked).map(([nome, dados]) => {
                 const pts = typeof dados === 'number' ? dados : (dados.pontos || 1000);
-                return { nome, pontos: pts, foto: tratarFoto(fotosData[nome]), patente: getPatenteInfo(pts) };
+                return { nome, pontos: pts, foto: tratarFoto(dbGlobal.fotos[nome]), patente: getPatenteInfo(pts) };
             }).sort((a,b) => b.pontos - a.pontos);
 
-            const hallFama = Object.entries(winsData).map(([nome, wins]) => ({
-                nome, wins, foto: tratarFoto(fotosData[nome])
+            const hallFama = Object.entries(dbGlobal.wins).map(([nome, wins]) => ({
+                nome, wins, foto: tratarFoto(dbGlobal.fotos[nome])
             })).sort((a,b) => b.wins - a.wins).slice(0, 10);
 
-            const magnatas = Object.entries(vipData).map(([nome, diamantes]) => ({
-                nome, diamantes, foto: tratarFoto(fotosData[nome])
+            const magnatas = Object.entries(dbGlobal.vip).map(([nome, diamantes]) => ({
+                nome, diamantes, foto: tratarFoto(dbGlobal.fotos[nome])
             })).sort((a,b) => b.diamantes - a.diamantes).slice(0, 10);
 
-            // <-- Organizando o Top 10 Matadores
-            const matadores = Object.entries(killsData).map(([nome, kills]) => ({
-                nome, kills, foto: tratarFoto(fotosData[nome])
+            const matadores = Object.entries(dbGlobal.kills).map(([nome, kills]) => ({
+                nome, kills, foto: tratarFoto(dbGlobal.fotos[nome])
             })).sort((a,b) => b.kills - a.kills).slice(0, 10);
 
             renderizarGuiaPatentes();
             renderizarHallFama(hallFama);
             renderizarMagnatas(magnatas);
-            renderizarMatadores(matadores); // <-- Mandando desenhar na tela
+            renderizarMatadores(matadores);
             renderizarTabela(todosJogadores);
             renderizarGrafico(todosJogadores);
         }
+
+        function renderizarHallFama(lista) {
+            const container = document.getElementById('hall-fama-list');
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item clickable-row" onclick="abrirPerfilSite('${p.nome}')"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-gold">${p.wins} WINS</div></div></div>
+            `).join('');
+        }
+
+        function renderizarMagnatas(lista) {
+            const container = document.getElementById('magnatas-list');
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item clickable-row" onclick="abrirPerfilSite('${p.nome}')"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-blue">💎 ${p.diamantes}</div></div></div>
+            `).join('');
+        }
+
+        function renderizarMatadores(lista) {
+            const container = document.getElementById('matadores-list');
+            if(!container) return; // Segurança
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item clickable-row" onclick="abrirPerfilSite('${p.nome}')"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value" style="color:#ff0000;">💀 ${p.kills} KILLS</div></div></div>
+            `).join('');
+        }
+
+        function renderizarTabela(lista) {
+            const tbody = document.querySelector('#playersTable tbody');
+            const display = lista.slice(0, 100);
+            tbody.innerHTML = display.map((p, i) => `
+                <tr class="clickable-row" onclick="abrirPerfilSite('${p.nome}')">
+                    <td><span style="color:#666; font-weight:bold;">${i+1}</span></td>
+                    <td><div class="player-cell"><img class="table-avatar" src="${p.foto}" style="border: 1px solid ${p.patente.cor}"><span style="font-weight:bold; color:${p.patente.cor}">${p.nome}</span></div></td>
+                    <td><div class="rank-badge" style="color:${p.patente.cor}; border-color:${p.patente.cor}"><svg viewBox="0 0 24 24" fill="currentColor">${p.patente.svg}</svg>${p.patente.nome}</div></td>
+                    <td style="font-weight:bold;">${p.pontos}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- FUNÇÕES DE ABRIR E FECHAR O PERFIL ---
+        function abrirPerfilSite(nome) {
+            const modal = document.getElementById('site-modal');
+            const contentBox = document.getElementById('site-modal-content');
+            
+            // Pega as estatísticas (se não tiver, vira 0)
+            let pts = dbGlobal.ranked[nome] ? (typeof dbGlobal.ranked[nome] === 'number' ? dbGlobal.ranked[nome] : dbGlobal.ranked[nome].pontos) : 1000;
+            let wins = dbGlobal.wins[nome] || 0;
+            let kills = dbGlobal.kills[nome] || 0;
+            let vip = dbGlobal.vip[nome] || 0;
+            let foto = tratarFoto(dbGlobal.fotos[nome]);
+            
+            const patente = getPatenteInfo(pts);
+            
+            // Aplica os dados no HTML
+            document.getElementById('modal-name').innerText = nome;
+            document.getElementById('modal-name').style.color = patente.cor;
+            document.getElementById('modal-name').style.textShadow = `0 0 15px ${patente.cor}`;
+            
+            document.getElementById('modal-rank-name').innerText = patente.nome;
+            document.getElementById('modal-rank-name').style.color = patente.cor;
+            
+            let svgIcon = patente.svg.replace('fill="currentColor"', `fill="${patente.cor}"`);
+            document.getElementById('modal-rank-icon').innerHTML = `<svg viewBox="0 0 24 24" style="filter: drop-shadow(0 0 8px ${patente.cor});">${svgIcon}</svg>`;
+            
+            document.getElementById('modal-img').src = foto;
+            document.getElementById('modal-img').style.borderColor = patente.cor;
+            document.getElementById('modal-img').style.boxShadow = `0 0 20px ${patente.cor}`;
+            
+            contentBox.style.borderColor = patente.cor;
+            contentBox.style.boxShadow = `0 0 50px ${patente.cor}44`;
+            
+            document.getElementById('modal-pts').innerText = pts;
+            document.getElementById('modal-wins').innerText = wins;
+            document.getElementById('modal-kills').innerText = kills;
+            document.getElementById('modal-vip').innerText = vip;
+            
+            // Animação de entrada
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+        }
+
+        function fecharPerfilSite() {
+            const modal = document.getElementById('site-modal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.style.display = 'none'; }, 300); // Aguarda a animação sair
+        }
+
+        // Fecha ao clicar fora da caixa
+        document.getElementById('site-modal').addEventListener('click', function(e) {
+            if (e.target === this) fecharPerfilSite();
+        });
 
         function atualizarCalendario(seasonData) {
             if (!seasonData || !seasonData.fim) return;
@@ -353,43 +516,6 @@
             `).join('');
         }
 
-        function renderizarHallFama(lista) {
-            const container = document.getElementById('hall-fama-list');
-            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
-            container.innerHTML = lista.map((p, i) => `
-                <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-gold">${p.wins} WINS</div></div></div>
-            `).join('');
-        }
-
-        function renderizarMagnatas(lista) {
-            const container = document.getElementById('magnatas-list');
-            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
-            container.innerHTML = lista.map((p, i) => `
-                <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value text-blue">💎 ${p.diamantes}</div></div></div>
-            `).join('');
-        }
-
-        function renderizarMatadores(lista) {
-            const container = document.getElementById('matadores-list');
-            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
-            container.innerHTML = lista.map((p, i) => `
-                <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value" style="color:#ff0000;">💀 ${p.kills} KILLS</div></div></div>
-            `).join('');
-        }
-
-        function renderizarTabela(lista) {
-            const tbody = document.querySelector('#playersTable tbody');
-            const display = lista.slice(0, 100);
-            tbody.innerHTML = display.map((p, i) => `
-                <tr>
-                    <td><span style="color:#666; font-weight:bold;">${i+1}</span></td>
-                    <td><div class="player-cell"><img class="table-avatar" src="${p.foto}" style="border: 1px solid ${p.patente.cor}"><span style="font-weight:bold; color:${p.patente.cor}">${p.nome}</span></div></td>
-                    <td><div class="rank-badge" style="color:${p.patente.cor}; border-color:${p.patente.cor}"><svg viewBox="0 0 24 24" fill="currentColor">${p.patente.svg}</svg>${p.patente.nome}</div></td>
-                    <td style="font-weight:bold;">${p.pontos}</td>
-                </tr>
-            `).join('');
-        }
-
         function renderizarGrafico(lista) {
             const counts = {}; PATENTES_CONFIG.forEach(p => counts[p.nome] = 0);
             lista.forEach(p => counts[p.patente.nome]++);
@@ -408,6 +534,7 @@
     </script>
 </body>
 </html>
+
 
 
 
