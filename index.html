@@ -220,6 +220,12 @@
             </div>
 
             <div style="display:flex; flex-direction:column; gap:15px;">
+                
+                <div class="glass-card" style="border-top: 2px solid #ff0000;">
+                    <div class="card-header"><span class="card-icon">💀</span><h3>MATADORES</h3></div>
+                    <div class="top-list" id="matadores-list"></div>
+                </div>
+
                 <div class="glass-card">
                     <div class="card-header"><span class="card-icon">📈</span><h3>ESTATÍSTICAS</h3></div>
                     <canvas id="rankChart" style="max-height:220px;"></canvas>
@@ -278,6 +284,7 @@
             const fotosData = safeParse(backup.fotos);
             const vipData = safeParse(backup.vipRanking);
             const seasonData = safeParse(backup.season);
+            const killsData = safeParse(backup.kills); // <-- Puxando as Kills do Backup
 
             if (backup.data) document.getElementById('last-update').innerText = "ATUALIZADO: " + backup.data;
             atualizarCalendario(seasonData);
@@ -295,9 +302,15 @@
                 nome, diamantes, foto: tratarFoto(fotosData[nome])
             })).sort((a,b) => b.diamantes - a.diamantes).slice(0, 10);
 
+            // <-- Organizando o Top 10 Matadores
+            const matadores = Object.entries(killsData).map(([nome, kills]) => ({
+                nome, kills, foto: tratarFoto(fotosData[nome])
+            })).sort((a,b) => b.kills - a.kills).slice(0, 10);
+
             renderizarGuiaPatentes();
             renderizarHallFama(hallFama);
             renderizarMagnatas(magnatas);
+            renderizarMatadores(matadores); // <-- Mandando desenhar na tela
             renderizarTabela(todosJogadores);
             renderizarGrafico(todosJogadores);
         }
@@ -356,6 +369,14 @@
             `).join('');
         }
 
+        function renderizarMatadores(lista) {
+            const container = document.getElementById('matadores-list');
+            if(lista.length === 0) { container.innerHTML = '<div style="padding:10px; color:#666; font-size:12px;">Nenhum registro.</div>'; return; }
+            container.innerHTML = lista.map((p, i) => `
+                <div class="top-item"><div class="top-rank">${i+1}</div><img class="top-avatar" src="${p.foto}"><div class="top-info"><div class="top-name">${p.nome}</div><div class="top-value" style="color:#ff0000;">💀 ${p.kills} KILLS</div></div></div>
+            `).join('');
+        }
+
         function renderizarTabela(lista) {
             const tbody = document.querySelector('#playersTable tbody');
             const display = lista.slice(0, 100);
@@ -387,6 +408,7 @@
     </script>
 </body>
 </html>
+
 
 
 
